@@ -49,7 +49,6 @@ export default function SettingScreen() {
         return false;
       }
     } catch (err) {
-      console.warn(err);
       return false;
     }
   }

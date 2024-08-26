@@ -75,7 +75,6 @@ const ListingScreen = () => {
       if (res) {
         Geolocation.getCurrentPosition(
           position => {
-            console.log(position);
             setLocation(position);
           },
           error => {

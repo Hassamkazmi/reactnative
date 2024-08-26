@@ -1,207 +1,113 @@
-import React, {Fragment, Component} from 'react';
-import ImagePicker from 'react-native-image-picker';
+import React, {useState, useCallback} from 'react';
+import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
 import {
   SafeAreaView,
   StyleSheet,
-  ScrollView,
   View,
   Text,
   StatusBar,
   Image,
-  Button,
-  Dimensions,
   TouchableOpacity,
+  Dimensions,
 } from 'react-native';
 import COLORS from '../Constant/Colors';
 
-const options = {
-  title: 'Select Avatar',
-  customButtons: [{name: 'fb', title: 'Choose Photo from Facebook'}],
-  storageOptions: {
-    skipBackup: true,
-    path: 'images',
-  },
-};
-export default class GalleryScreen extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      filepath: {
-        data: '',
-        uri: '',
-      },
-      fileData: '',
-      fileUri: '',
-    };
-  }
+const GalleryScreen = () => {
+  const [filePath, setFilePath] = useState({data: '', uri: ''});
+  const [fileData, setFileData] = useState('');
+  const [fileUri, setFileUri] = useState('');
 
-  chooseImage = () => {
-    let options = {
-      title: 'Select Image',
-      customButtons: [
-        {name: 'customOptionKey', title: 'Choose Photo from Custom Option'},
-      ],
-      storageOptions: {
-        skipBackup: true,
-        path: 'images',
-      },
-    };
-    ImagePicker.showImagePicker(options, response => {
-      console.log('Response = ', response);
-
-      if (response.didCancel) {
-        console.log('User cancelled image picker');
-      } else if (response.error) {
-        console.log('ImagePicker Error: ', response.error);
-      } else if (response.customButton) {
-        console.log('User tapped custom button: ', response.customButton);
-        alert(response.customButton);
-      } else {
-        const source = {uri: response.uri};
-
-        // You can also display the image using data:
-        // const source = { uri: 'data:image/jpeg;base64,' + response.data };
-        // alert(JSON.stringify(response));s
-        console.log('response', JSON.stringify(response));
-        this.setState({
-          filePath: response,
-          fileData: response.data,
-          fileUri: response.uri,
-        });
-      }
-    });
-  };
-
-  launchCamera = () => {
-    let options = {
-      storageOptions: {
-        skipBackup: true,
-        path: 'images',
-      },
-    };
-    ImagePicker.launchCamera(options, response => {
-      console.log('Response = ', response);
-
-      if (response.didCancel) {
-        console.log('User cancelled image picker');
-      } else if (response.error) {
-        console.log('ImagePicker Error: ', response.error);
-      } else if (response.customButton) {
-        console.log('User tapped custom button: ', response.customButton);
-        alert(response.customButton);
-      } else {
-        const source = {uri: response.uri};
-        console.log('response', JSON.stringify(response));
-        this.setState({
-          filePath: response,
-          fileData: response.data,
-          fileUri: response.uri,
-        });
-      }
-    });
-  };
-
-  launchImageLibrary = () => {
-    let options = {
-      storageOptions: {
-        skipBackup: true,
-        path: 'images',
-      },
-    };
-    ImagePicker.launchImageLibrary(options, response => {
-      console.log('Response = ', response);
-
-      if (response.didCancel) {
-        console.log('User cancelled image picker');
-      } else if (response.error) {
-        console.log('ImagePicker Error: ', response.error);
-      } else if (response.customButton) {
-        console.log('User tapped custom button: ', response.customButton);
-        alert(response.customButton);
-      } else {
-        const source = {uri: response.uri};
-        console.log('response', JSON.stringify(response));
-        this.setState({
-          filePath: response,
-          fileData: response.data,
-          fileUri: response.uri,
-        });
-      }
-    });
-  };
-
-  renderFileData() {
-    if (this.state.fileData) {
-      return (
-        <Image
-          source={{uri: 'data:image/jpeg;base64,' + this.state.fileData}}
-          style={styles.images}
-        />
-      );
+  const handleResponse = useCallback(response => {
+    if (response.didCancel) {
+    } else if (response.errorCode) {
+      console.log('ImagePicker Error: ');
     } else {
-      return (
-        <Image source={require('../Assets/Logo.png')} style={styles.images} />
-      );
+      const asset = response.assets && response.assets[0];
+      if (asset) {
+        setFilePath(asset);
+        setFileData(asset.base64 || '');
+        setFileUri(asset.uri || '');
+      }
     }
-  }
+  }, []);
 
-  renderFileUri() {
-    if (this.state.fileUri) {
-      return <Image source={{uri: this.state.fileUri}} style={styles.images} />;
-    } else {
-      return (
-        <Image source={require('../Assets/Logo.png')} style={styles.images} />
-      );
-    }
-  }
-  render() {
-    return (
-      <Fragment>
-        <StatusBar barStyle="dark-content" />
-        <SafeAreaView>
-          <View style={styles.body}>
-            <Text
-              style={{textAlign: 'center', fontSize: 20, paddingBottom: 10}}>
-              Pick Images from Camera & Gallery
-            </Text>
-            <View style={styles.ImageSections}>
-              <View>
-                {this.renderFileData()}
-                <Text style={{textAlign: 'center'}}>Base 64 String</Text>
-              </View>
-              <View>
-                {this.renderFileUri()}
-                <Text style={{textAlign: 'center'}}>File Uri</Text>
-              </View>
+  // Using useCallback to prevent re-render loops
+  const handleLaunchCamera = useCallback(() => {
+    const options = {
+      mediaType: 'photo',
+      includeBase64: true,
+      maxWidth: 300,
+      maxHeight: 550,
+      quality: 1,
+    };
+    launchCamera(options, handleResponse);
+  }, [handleResponse]);
+
+  const chooseImage = () => {
+    const options = {
+      mediaType: 'photo',
+      includeBase64: true,
+      maxWidth: 300,
+      maxHeight: 550,
+      quality: 1,
+    };
+    launchImageLibrary(options, handleResponse);
+  };
+
+  return (
+    <>
+      <StatusBar barStyle="dark-content" />
+      <SafeAreaView>
+        <View style={styles.body}>
+          <Text style={{textAlign: 'center', fontSize: 20, paddingBottom: 10}}>
+            Pick Images from Camera & Gallery
+          </Text>
+          <View style={styles.ImageSections}>
+            <View>
+              {fileData ? (
+                <Image
+                  source={{uri: 'data:image/jpeg;base64,' + fileData}}
+                  style={styles.images}
+                />
+              ) : (
+                <Image
+                  source={require('../Assets/Logo.png')}
+                  style={styles.images}
+                />
+              )}
+              <Text style={{textAlign: 'center'}}>Base 64 String</Text>
             </View>
-
-            <View style={styles.btnParentSection}>
-              <TouchableOpacity
-                onPress={this.chooseImage}
-                style={styles.btnSection}>
-                <Text style={styles.btnText}>Choose File</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                onPress={this.launchCamera}
-                style={styles.btnSection}>
-                <Text style={styles.btnText}>Directly Launch Camera</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                onPress={this.launchImageLibrary}
-                style={styles.btnSection}>
-                <Text style={styles.btnText}>
-                  Directly Launch Image Library
-                </Text>
-              </TouchableOpacity>
+            <View>
+              {fileUri ? (
+                <Image source={{uri: fileUri}} style={styles.images} />
+              ) : (
+                <Image
+                  source={require('../Assets/Logo.png')}
+                  style={styles.images}
+                />
+              )}
+              <Text style={{textAlign: 'center'}}>File Uri</Text>
             </View>
           </View>
-        </SafeAreaView>
-      </Fragment>
-    );
-  }
-}
+
+          <View style={styles.btnParentSection}>
+            <TouchableOpacity
+              onPress={handleLaunchCamera} // Notice this uses the useCallback hook
+              style={styles.btnSection}>
+              <Text style={styles.btnText}>Directly Launch Camera</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={chooseImage} style={styles.btnSection}>
+              <Text style={styles.btnText}>Choose File</Text>
+            </TouchableOpacity>
+            {/* <TouchableOpacity onPress={chooseImage} style={styles.btnSection}>
+              <Text style={styles.btnText}>Choose File</Text>
+            </TouchableOpacity> */}
+          </View>
+        </View>
+      </SafeAreaView>
+    </>
+  );
+};
 
 const styles = StyleSheet.create({
   scrollView: {
@@ -250,3 +156,5 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 });
+
+export default GalleryScreen;

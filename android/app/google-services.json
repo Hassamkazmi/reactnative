@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "80407466464",
+    "project_id": "pushnotifaction-da113",
+    "storage_bucket": "pushnotifaction-da113.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:80407466464:android:33a860e4c4cc9c4893db85",
+        "android_client_info": {
+          "package_name": "com.allhead"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCpNXHhIe5bbSKNWYb3TN0s6ZmdR8IC5OI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -72,44 +72,9 @@ const ProfileScreen = () => {
     });
   };
 
-  const openGallery = async () => {
-    const hasPermission = await checkAndRequestGalleryPermission();
-    if (!hasPermission) {
-      Alert.alert(
-        'Gallery Permission Denied',
-        'You need to enable gallery permissions in settings.',
-        [
-          {text: 'Cancel', style: 'cancel'},
-          {
-            text: 'Open Settings',
-            onPress: () => Linking.openSettings(),
-          },
-        ],
-        {cancelable: false},
-      );
-      return;
-    }
-
-    const options = {
-      mediaType: 'photo',
-    };
-
-    launchImageLibrary(options, response => {
-      if (response.didCancel) {
-        console.log('User cancelled image picker');
-      } else if (response.errorCode) {
-        console.log('Gallery Error: ', response.errorMessage);
-      } else {
-        const uri = response.assets[0].uri;
-        setImageUri(uri);
-      }
-    });
-  };
-
   return (
     <View style={styles.container}>
       <MainBtn title={'Open Camera'} onPress={openCamera} />
-      <MainBtn title={'Open Gallery'} onPress={openGallery} />
 
       {imageUri && (
         <Image source={{uri: imageUri}} style={{width: 200, height: 200}} />
